@@ -1,0 +1,59 @@
+{
+  "started": "2026-11-11T180821",
+  "provider": "claude-haiku",
+  "model": "claude-haiku-5-5",
+  "model_label": "Claude Haiku 5.5, Anthropic API",
+  "prompt": "grounded-v2",
+  "question_set": "holdout",
+  "retrieval": {
+    "embedding_model": "BAAI/bge-small-en-v1.5",
+    "sparse_model": "Qdrant/bm25",
+    "mode": "hybrid",
+    "chunk_size": 1000,
+    "chunk_overlap": 150,
+    "chunk_header": true,
+    "k": 5
+  },
+  "summary": {
+    "n_questions": 16,
+    "n_answerable": 11,
+    "n_unanswerable": 5,
+    "retrieval_hit_rate": 1.0,
+    "answer_accuracy": 1.0,
+    "citation_accuracy": 1.0,
+    "refusal_rate": 1.0,
+    "false_refusal_rate": 0.0,
+    "answer_accuracy_ci95": [
+      0.7411599827511859,
+      1.0
+    ],
+    "refusal_rate_ci95": [
+      0.5655085052479191,
+      1.0
+    ],
+    "grounded_accuracy": 1.0,
+    "accuracy_when_retrieved": 1.0,
+    "by_kind": {
+      "fact": {
+        "n": 10,
+        "correct": 10
+      },
+      "false_premise": {
+        "n": 1,
+        "correct": 1
+      },
+      "out_of_corpus": {
+        "n": 5,
+        "correct": 5
+      }
+    },
+    "latency_ms_p50": 1320.9,
+    "latency_ms_p95": 1741.6999999999998,
+    "retrieval_ms_mean": 18.462500000000002,
+    "generation_ms_mean": 1263.40625,
+    "tokens_in_mean": 1568.625,
+    "tokens_out_mean": 121.5625,
+    "cost_usd_total": 0.0034823000000000002,
+    "cost_usd_per_query": 0.00021764375000000001
+  }
+}
