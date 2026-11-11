@@ -1,0 +1,63 @@
+{
+  "started": "2026-11-11T171724",
+  "provider": "qwen3-0.6b-lora",
+  "model": "Qwen/Qwen3-0.6B",
+  "model_label": "Qwen3 0.6B + LoRA adapter, transformers, RTX 3060 Ti",
+  "prompt": "grounded-v2",
+  "question_set": "main",
+  "retrieval": {
+    "embedding_model": "BAAI/bge-small-en-v1.5",
+    "sparse_model": "Qdrant/bm25",
+    "mode": "hybrid",
+    "chunk_size": 1000,
+    "chunk_overlap": 150,
+    "chunk_header": true,
+    "k": 5
+  },
+  "summary": {
+    "n_questions": 47,
+    "n_answerable": 33,
+    "n_unanswerable": 14,
+    "retrieval_hit_rate": 1.0,
+    "answer_accuracy": 0.5757575757575758,
+    "citation_accuracy": 0.6363636363636364,
+    "refusal_rate": 1.0,
+    "false_refusal_rate": 0.36363636363636365,
+    "answer_accuracy_ci95": [
+      0.4080697369146003,
+      0.7276464100497011
+    ],
+    "refusal_rate_ci95": [
+      0.7846829880728186,
+      1.0
+    ],
+    "grounded_accuracy": 0.5757575757575758,
+    "accuracy_when_retrieved": 0.5757575757575758,
+    "by_kind": {
+      "fact": {
+        "n": 30,
+        "correct": 19
+      },
+      "false_premise": {
+        "n": 3,
+        "correct": 0
+      },
+      "injection": {
+        "n": 2,
+        "correct": 2
+      },
+      "out_of_corpus": {
+        "n": 12,
+        "correct": 12
+      }
+    },
+    "latency_ms_p50": 701.9,
+    "latency_ms_p95": 3314.84,
+    "retrieval_ms_mean": 21.425531914893618,
+    "generation_ms_mean": 1403.4510638297872,
+    "tokens_in_mean": 1084.6808510638298,
+    "tokens_out_mean": 23.46808510638298,
+    "cost_usd_total": 0.0,
+    "cost_usd_per_query": 0.0
+  }
+}

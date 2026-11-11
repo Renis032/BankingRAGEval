@@ -1,0 +1,45 @@
+{
+  "model": "Qwen/Qwen3-0.6B",
+  "lora": {
+    "r": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "target_modules": [
+      "down_proj",
+      "gate_proj",
+      "k_proj",
+      "o_proj",
+      "q_proj",
+      "up_proj",
+      "v_proj"
+    ]
+  },
+  "epochs": 2,
+  "learning_rate": 0.0002,
+  "grad_accum": 8,
+  "train_examples": 302,
+  "val_examples": 40,
+  "optimizer_steps": 76,
+  "seconds": 427.2,
+  "peak_gpu_gib": 1.89,
+  "history": [
+    {
+      "epoch": 0,
+      "step": 0,
+      "train_loss": null,
+      "val_loss": 0.858048690110445
+    },
+    {
+      "epoch": 1,
+      "step": 38,
+      "train_loss": 0.2500137257544302,
+      "val_loss": 0.21218360415659845
+    },
+    {
+      "epoch": 2,
+      "step": 76,
+      "train_loss": 0.08984028551524577,
+      "val_loss": 0.2085175938613247
+    }
+  ]
+}
