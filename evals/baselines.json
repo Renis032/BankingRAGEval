@@ -10,5 +10,17 @@
       "false_refusal_rate": 0.06060606060606061,
       "retrieval_hit_rate": 1.0
     }
+  },
+  "claude-haiku": {
+    "prompt": "grounded-v2",
+    "model": "claude-haiku-5-5",
+    "run": "results/runs/2026-11-11T180500_claude-haiku_grounded-v2.json",
+    "metrics": {
+      "answer_accuracy": 1.0,
+      "citation_accuracy": 1.0,
+      "refusal_rate": 1.0,
+      "false_refusal_rate": 0.0,
+      "retrieval_hit_rate": 1.0
+    }
   }
 }
