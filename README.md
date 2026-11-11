@@ -6,6 +6,8 @@ A 3B model on a gaming GPU answers 94% of 33 regulation questions correctly from
 
 The same eval also found this setup's biggest weakness. Ask in everyday words instead of the directive's own words, and the local model refuses 6 of 8 questions it could have answered ([plain-language questions](#plain-language-questions-the-weak-spot)).
 
+![What the project does, in plain words: find the relevant EU law, answer only from it with a source, and re-check 71 known questions after every change. A real answer cites GDPR Article 33.](docs/figures/overview.png)
+
 ## At a glance
 
 | | |
@@ -44,6 +46,8 @@ Everything below was measured on one PC: RTX 3060 Ti 8 GB, Ryzen 5 5600X, Window
   FAILED tests/test_prompt_regression.py::test_metric_within_margin_of_baseline[refusal_rate]
   2 failed, 3 passed
   ```
+
+  ![The same story in plain words: answer accuracy rose from 94% to 97%, but saying "I don't know" when it should fell from 100% to 0%, and the automatic test failed the change.](docs/figures/test-in-action.png)
 
 - **I read all 14 of helpful-v1b's answers to the questions it should have refused.** 8 contain a false or invented claim. 2 pad a decline with unrelated source text. 4 decline cleanly, but in their own words. The worst four:
   - **The injection worked.** Asked to ignore the rules, it gave the Basel III CET1 minimum (4.5%) from its own training.
@@ -110,16 +114,16 @@ A refusal takes about 0.25 s, because the model writes only 10 tokens. At Claude
 
 ```mermaid
 flowchart LR
-    A[EU Publications Office<br/>PSD2, DGSD, GDPR] -->|build-corpus| B[239 articles<br/>data/corpus.jsonl]
-    B -->|RecursiveCharacterTextSplitter<br/>1,000 chars + article header| C[607 chunks]
-    C -->|FastEmbed: bge-small + BM25| D[(Qdrant<br/>in-memory)]
-    Q[Question] --> E[Hybrid search, top 5]
+    A["EU Publications Office<br/>PSD2, DGSD, GDPR"] -->|"build-corpus"| B["239 articles<br/>data/corpus.jsonl"]
+    B -->|"RecursiveCharacterTextSplitter<br/>1,000 chars + article header"| C["607 chunks"]
+    C -->|"FastEmbed: bge-small + BM25"| D[("Qdrant<br/>in-memory")]
+    Q["Question"] --> E["Hybrid search, top 5"]
     D --> E
     E --> F["Numbered sources [1]..[5]"]
-    F --> G[ChatPromptTemplate | chat model]
-    G --> H[Answer]
-    H --> I[Code graders]
-    I --> J[Run file + regression gate]
+    F --> G["ChatPromptTemplate piped into the chat model"]
+    G --> H["Answer"]
+    H --> I["Code graders"]
+    I --> J["Run file + regression gate"]
 ```
 
 - **Corpus** ([bankrag/corpus.py](bankrag/corpus.py)): EUR-Lex answers scripts with a bot check, so the Official Journal text comes from the Publications Office instead, as XHTML. Each act is split into one record per article. Point labels such as "(a)" sit in a separate table cell from their text, so they are joined back to it.
@@ -131,7 +135,7 @@ flowchart LR
 
 ## Quick start
 
-The offline tests need only [uv](https://docs.astral.sh/uv/getting-started/installation/), which installs Python 3.13 and the dependencies itself. The first run downloads the two embedding models (about 65 MB) into `.cache/`.
+The offline tests need only [uv](https://docs.astral.sh/uv/getting-started/installation/), which installs Python 3.13 and the dependencies itself. On Windows, open a new terminal after installing uv so that it is on the PATH, and run the commands one at a time (Windows PowerShell 5.1 has no `&&`). The first test run downloads the two embedding models (about 65 MB) into `.cache/`.
 
 ```bash
 git clone https://github.com/Renis032/BankingRAGEval.git
