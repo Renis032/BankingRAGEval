@@ -240,6 +240,12 @@ tests/              offline tests, plus test_prompt_regression.py (marked live)
 - **The index lives in memory** and is rebuilt in about 30 s per process. That's fine at 607 chunks. A larger corpus would use Qdrant on disk or as a server.
 - **Tested on Windows only,** with one GPU. Other OpenAI-compatible local servers (Ollama, LM Studio) should work through `BANKRAG_LOCAL_URL`, but haven't been tried.
 
+## In plain words
+
+For readers outside AI: the measured results, and where the project shows each skill an AI prompt engineering role asks for.
+
+![Measured results in plain words (94% answered correctly, 14 of 14 correct refusals, 0.7 s per answer, no running cost), and a table mapping LangChain, RAG with a vector database, prompt engineering, prompt evaluation, regression testing, fine-tuning and cost tracking to where each appears in the project.](docs/figures/results.png)
+
 ## Licence
 
 The code and eval data are under the [MIT License](LICENSE). The texts in `data/corpus.jsonl` are EU legislation, © European Union, reused under Commission Decision 2011/833/EU ([data/README.md](data/README.md)).
