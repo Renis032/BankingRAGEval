@@ -17,11 +17,12 @@ The same eval also found this setup's biggest weakness. Ask in everyday words in
 | **Retrieval** | Qdrant in local mode (no server, no account), one collection holding both a dense vector (bge-small-en-v1.5) and a BM25 sparse vector per chunk; hybrid search fuses the two inside Qdrant |
 | **Eval** | 47 questions in the gated main set, plus 16 held out and 8 in everyday wording. Graded by code: facts by regular expression against known answers, citations by article id, refusals by the exact sentence. Four kinds: facts, false premises, questions the corpus can't answer, prompt injections |
 | **Regression gate** | Five metrics compared with the accepted baseline, with a margin of one question each: `pytest -m live` fails a prompt change that makes any of them worse |
-| **Trustworthy data** | 209 offline tests, including: every expected fact appears in its gold article, no trap question's answer appears anywhere in the corpus, and the graders accept a hand-written right answer and reject a wrong one for every answerable question |
+| **Fine-tuning** | A LoRA experiment on Qwen3-0.6B, trained in 7 minutes on the same GPU and graded by the same suite. The adapter learned the answer contract but refuses too often, so it isn't used ([results](#fine-tuning-experiment-lora-on-a-06b-model)) |
+| **Trustworthy data** | 222 offline tests, including: every expected fact appears in its gold article, no trap question's answer appears anywhere in the corpus, and the graders accept a hand-written right answer and reject a wrong one for every answerable question, and no fine-tuning example comes from an article the evals use |
 | **Repeatable** | Greedy decoding, a fixed seed, and the chat template's date pinned. Each prompt run two or three times on the same questions (seven runs in all) gave the same answers word for word |
 | **Per query** | Latency, retrieval and generation time, tokens in and out, and cost, saved with every answer |
-| **Stack** | Python 3.13 · langchain-core 1.7 with the qdrant, openai, anthropic and text-splitters integrations · Qdrant client 1.20 · FastEmbed 0.9 · llama.cpp · pytest |
-| **Status** | Local model (SmolLM3 3B on llama.cpp) measured. The Claude Haiku 5.5 provider is written but has no recorded runs yet ([limitations](#known-limitations)). The LoRA fine-tuning experiment isn't started |
+| **Stack** | Python 3.13 · langchain-core 1.7 with the qdrant, openai, anthropic and text-splitters integrations · Qdrant client 1.20 · FastEmbed 0.9 · llama.cpp · pytest · for the optional LoRA experiment: PyTorch 2.11, transformers 5.22, PEFT 0.21 |
+| **Status** | Local model (SmolLM3 3B on llama.cpp) measured, and the LoRA experiment run. The Claude Haiku 5.5 provider is written but has no recorded runs yet ([limitations](#known-limitations)) |
 
 ## Results
 
@@ -78,6 +79,28 @@ The main set's questions were written while reading the articles, so they share 
 | Wrongly refused | 4 of 8 | 6 of 8 | 0 of 8 |
 
 In 4 of v2's 6 refusals, the right article was already among the five sources. The model didn't connect "someone stole my card" with "lost or stolen payment instrument" and refused. The rule that stops invented answers also stops this 3B model answering questions it could answer. The gate didn't catch this because the main set has no everyday wording. Extending the gate to the plain set is the next step.
+
+### Fine-tuning experiment: LoRA on a 0.6B model
+
+Can fine-tuning teach the answer contract to a model too small to follow it from the prompt alone? [The notebook](notebooks/lora_experiment.ipynb) trains a LoRA adapter (rank 16 on every attention and MLP projection, 10.1M trainable parameters, 1.7% of the model) on [Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B). It then grades the model without and with the adapter on all three eval sets, with the same retrieval, prompt (grounded-v2) and graders as above.
+
+**Training data that can't leak into the eval.** SmolLM3 wrote one question, answer and supporting quote for each of 317 chunks, taken only from articles that no eval question is about. Code kept 224, rejecting a question unless its quote appears word for word in the chunk and it doesn't mention "the passage" or an article number. Each kept question became an answer example (its chunk among the five retrieved sources, target = answer plus `[n]`). For 60% of them it also became a refusal example (every chunk of that article removed from the sources, target = the refusal sentence). That gives 342 examples: 302 for training and 40 for validation from separate articles. Tests check that no example comes from an eval article and no training question repeats an eval question ([bankrag/finetune_data.py](bankrag/finetune_data.py), [tests/test_finetune_data.py](tests/test_finetune_data.py)).
+
+**Training:** 2 epochs, 76 optimizer steps, 7 minutes, 1.9 GiB peak GPU memory. The loss is computed only on the answer tokens, and only those positions are scored over the 152,000-token vocabulary. A first test that scored every position, without gradient checkpointing active, peaked at 9.5 GiB, more than the card holds. Validation loss went 0.858 → 0.212 → 0.209.
+
+| Main set (47 questions) | Qwen3-0.6B | + LoRA |
+|---|---|---|
+| Refuses when it should | 50% | **100%** |
+| Answers with a valid citation (of those not refused) | 91% | **100%** |
+| Tokens per answer | 83 | 23 |
+| Wrongly refuses | 15% | **36%** |
+| Answer accuracy | 76% | **58%** |
+
+- **The adapter learned the contract.** It refused all 17 out-of-corpus questions across the main and held-out sets (the base model refused 9) and both prompt injections (base: 1). Every refusal uses the exact sentence, where the base model wrote variants such as "I cannot answer *this question* from…".
+- **It also learned to refuse too much.** Wrong refusals rose from 9% to 55% on the held-out set and from 25% to 88% on the plain-language set. Answer accuracy fell everywhere (held out: 64% → 45%; plain: 38% → 12%). It would fail the regression gate, so it isn't used.
+- **Likely causes:** refusals were 38% of the training data, each built from a question that was otherwise answerable, and the training questions share their passage's wording. Training loss kept falling in the second epoch (0.250 → 0.090) while validation loss didn't, so that epoch mostly memorised. The next run uses fewer refusal examples (15–20%), questions rephrased into everyday wording, and one epoch, with the gate as the stopping rule.
+
+This is the same trade-off the prompt experiments showed: a strict refusal rule, whether in the prompt or trained into the weights, swaps invented answers for missed ones.
 
 ### Retrieval
 
@@ -165,7 +188,7 @@ without undue delay and, where feasible, not later than 72 hours after becoming 
 
 | Command | What it does |
 |---|---|
-| `uv run pytest` | 209 offline tests: corpus, eval data, graders, retrieval. No model, about 40 s |
+| `uv run pytest` | 222 offline tests: corpus, eval data, graders, retrieval, fine-tuning data. No model, about 40 s |
 | `uv run pytest -m live --provider local` | The prompt regression test: runs the main set on the model and checks each gated metric against the baseline |
 | `uv run pytest -m live --provider local --prompt helpful-v1b` | The same, on the prompt that should fail |
 | `uv run python -m bankrag eval [--prompt ID] [--set main\|holdout\|plain]` | Runs an eval set and saves every answer to `results/runs/` |
@@ -174,8 +197,19 @@ without undue delay and, where feasible, not later than 72 hours after becoming 
 | `uv run python -m bankrag retrieval` | Scores dense, BM25 and hybrid search, with and without chunk headers, on all three sets |
 | `uv run python -m bankrag report` | Prints the latest run of each prompt and set as Markdown tables |
 | `uv run python -m bankrag build-corpus [--refresh]` | Downloads the three acts again and rebuilds `data/corpus.jsonl` |
+| `uv run python -m bankrag finetune-data [--regenerate]` | Builds the LoRA training data in `data/finetune/` (the generation step needs llama-server) |
 
 For Claude, add `ANTHROPIC_API_KEY` to `.env` and use `--provider claude-haiku`. It has no baseline yet, so run `eval --provider claude-haiku --accept` once before `--check` or the live test.
+
+The LoRA experiment needs PyTorch with CUDA (about 3 GB) and an NVIDIA GPU. Its packages are kept out of the default install:
+
+```bash
+uv sync --group finetune
+```
+
+```bash
+uv run --group finetune jupyter nbconvert --to notebook --execute --inplace notebooks/lora_experiment.ipynb
+```
 
 ## Project layout
 
@@ -184,8 +218,12 @@ bankrag/            corpus download and parsing, index, chain, providers, grader
 prompts/            prompt versions as YAML: grounded-v1, grounded-v2 (shipped), helpful-v1b (the regression demo)
 evals/              questions.yaml (main, gated), holdout.yaml, plain.yaml, gates.yaml, baselines.json
 data/corpus.jsonl   the 239 articles, with their source and licence in data/README.md
+data/finetune/      the LoRA experiment's generated questions and training examples
+notebooks/          lora_experiment.ipynb, with its outputs and findings
 results/runs/       every eval run: one .jsonl line per answer, and a .json summary
+results/lora/       the LoRA training record (settings, losses, time, memory)
 results/retrieval.json
+docs/figures/       screenshots of the plain-language overview
 tests/              offline tests, plus test_prompt_regression.py (marked live)
 ```
 
@@ -197,6 +235,7 @@ tests/              offline tests, plus test_prompt_regression.py (marked live)
 - **Graders check the key fact, not the whole answer.** An answer with the right deadline and a wrong extra claim still passes. In the other direction, declining in other words counts as a failure, on purpose.
 - **SmolLM3 ignores the length rule.** It often pastes whole paragraphs. Length isn't graded.
 - **No Claude results yet.** The `claude-haiku` provider builds a valid request (Haiku 5.5, low effort, no sampling parameters, which that model rejects), checked offline, but it hasn't been run against the API. Its runs won't repeat exactly, because Haiku 5.5 takes no temperature or seed, so its gate margins should be set from a few repeated runs.
+- **The LoRA experiment is one run**, with one seed and one data mix, on synthetic questions written by a 3B model. It shows what this recipe does, not what fine-tuning can do in general. The adapter isn't committed; the notebook recreates it in about 7 minutes.
 - **The corpus is the acts as first published**, without amendments. It's test material, not current law.
 - **The index lives in memory** and is rebuilt in about 30 s per process. That's fine at 607 chunks. A larger corpus would use Qdrant on disk or as a server.
 - **Tested on Windows only,** with one GPU. Other OpenAI-compatible local servers (Ollama, LM Studio) should work through `BANKRAG_LOCAL_URL`, but haven't been tried.
