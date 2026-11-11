@@ -2,7 +2,7 @@
 
 **A LangChain RAG pipeline over EU banking regulation (PSD2, deposit guarantees, GDPR), with Qdrant as the vector store and a code-graded eval suite that works as a prompt regression test.**
 
-A 3B model on a gaming GPU answers 94% of 33 regulation questions correctly from retrieved articles, and refuses all 14 the articles can't answer. A plausible "be more helpful" prompt edit raises accuracy to 97% and makes the model answer every one of those 14. In 8 of the 14 answers it states something false or invented. The regression test fails that edit. A dashboard that tracked accuracy alone would have shipped it. [Results →](#results)
+A 3B model on a gaming GPU answers 94% of 33 regulation questions correctly from retrieved articles, and refuses all 14 the articles can't answer. A plausible "be more helpful" prompt edit raises accuracy to 97% and makes the model answer every one of those 14. In 8 of the 14 answers it states something false or invented. The regression test fails that edit. A dashboard that tracked accuracy alone would have shipped it. On the same pipeline and questions, Claude Haiku 5.5 gets every one right, at $0.011 for all 47. [Results →](#results)
 
 The same eval also found this setup's biggest weakness. Ask in everyday words instead of the directive's own words, and the local model refuses 6 of 8 questions it could have answered ([plain-language questions](#plain-language-questions-the-weak-spot)).
 
@@ -22,7 +22,7 @@ The same eval also found this setup's biggest weakness. Ask in everyday words in
 | **Repeatable** | Greedy decoding, a fixed seed, and the chat template's date pinned. Each prompt run two or three times on the same questions (seven runs in all) gave the same answers word for word |
 | **Per query** | Latency, retrieval and generation time, tokens in and out, and cost, saved with every answer |
 | **Stack** | Python 3.13 · langchain-core 1.7 with the qdrant, openai, anthropic and text-splitters integrations · Qdrant client 1.20 · FastEmbed 0.9 · llama.cpp · pytest · for the optional LoRA experiment: PyTorch 2.11, transformers 5.22, PEFT 0.21 |
-| **Status** | Local model (SmolLM3 3B on llama.cpp) measured, and the LoRA experiment run. The Claude Haiku 5.5 provider is written but has no recorded runs yet ([limitations](#known-limitations)) |
+| **Status** | Measured on a local model (SmolLM3 3B on llama.cpp) and a cloud model (Claude Haiku 5.5 through the Anthropic API), and the LoRA experiment run |
 
 ## Results
 
@@ -80,6 +80,28 @@ The main set's questions were written while reading the articles, so they share 
 
 In 4 of v2's 6 refusals, the right article was already among the five sources. The model didn't connect "someone stole my card" with "lost or stolen payment instrument" and refused. The rule that stops invented answers also stops this 3B model answering questions it could answer. The gate didn't catch this because the main set has no everyday wording. Extending the gate to the plain set is the next step.
 
+### Claude Haiku 5.5 on the same pipeline
+
+The same retrieval, prompt (grounded-v2) and graders, with Claude Haiku 5.5 through LangChain's Anthropic integration, at low effort.
+
+| | SmolLM3 3B (local) | Claude Haiku 5.5 |
+|---|---|---|
+| Main set: answer accuracy | 94% (31 of 33) | **100%** (33 of 33) |
+| Main set: cites the right article | 85% | **100%** |
+| Main set: refuses when it should | 100% (14 of 14) | **100%** (14 of 14) |
+| Main set: false premises corrected | 1 of 3 | **3 of 3** |
+| Held-out set: answer accuracy / refusals | 82% / 5 of 5 | **100% / 5 of 5** |
+| Plain-language set: answer accuracy | 2 of 8 | **5 of 8** |
+| Median time per answer | 0.70 s | 1.1–1.2 s |
+| Cost per query | none (local GPU) | $0.00023 |
+
+- **Claude solves the problems the 3B model has.** It answers every main-set and held-out question correctly, corrects all three false premises, and keeps to the citation format.
+- **On everyday wording, the search becomes the limit.** Claude's two refusals on the plain set are exactly the two questions where hybrid search didn't return the right article. Refusing was the correct behaviour with those sources. Its third miss reads Article 54 too narrowly ("the sources do not directly address account fees"). For a strong model, the next gain is in retrieval ([retrieval](#retrieval)), not in the prompt.
+- **Runs don't repeat word for word.** Haiku 5.5 takes no temperature or seed. A second main-set run kept every grade, and the gate passed it, but only 14 of 47 answers were worded identically. The one-question margins held for two runs; more runs would show whether they're too tight for Claude.
+- **The "more helpful" prompt also fails the gate on Claude, for a different reason.** Its refusal rate falls from 100% to 0%, as with SmolLM3. But I read all 14 answers, and none invents a fact. Each says in its own words that the sources don't cover the question, and most say where the answer would be. Two specific claims (DGSD Articles 11 and 12) were checked against the corpus. Claude even declined the injection without the rule against it. The gate is still right to fail the change, because the application relies on the fixed refusal sentence, and a prompt change that breaks it would break the application.
+
+Five Claude runs (two main, held-out, plain, helpful-v1b) cost $0.040 in all.
+
 ### Fine-tuning experiment: LoRA on a 0.6B model
 
 Can fine-tuning teach the answer contract to a model too small to follow it from the prompt alone? [The notebook](notebooks/lora_experiment.ipynb) trains a LoRA adapter (rank 16 on every attention and MLP projection, 10.1M trainable parameters, 1.7% of the model) on [Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B). It then grades the model without and with the adapter on all three eval sets, with the same retrieval, prompt (grounded-v2) and graders as above.
@@ -131,7 +153,7 @@ Per query, grounded-v2 on the main set:
 | Cost | No API cost. GPU electricity isn't measured here; [LocalLLMPerformanceLab](https://github.com/Renis032/LocalLLMPerformanceLab) does that |
 | Building the index | 607 chunks embedded twice (dense and BM25) in about 30 s on the CPU, once per process |
 
-A refusal takes about 0.25 s, because the model writes only 10 tokens. At Claude Haiku 5.5's list price ($0.10 per million input tokens, $0.50 per million output), the same token counts would cost about $0.00015 per query, or $0.007 for the main set. That's an estimate, not a measurement: Claude counts tokens differently and may add thinking tokens.
+A refusal takes about 0.25 s, because the model writes only 10 tokens. Claude Haiku 5.5, measured on the same questions: 1.1–1.2 s median and 2.2 s at the 95th percentile, about 1,590 tokens in and 134 out (its tokenizer counts differently, and output can include its reasoning tokens), $0.00023 per query and $0.011 for the main set at list price ($0.10 per million input tokens, $0.50 per million output).
 
 ## How it works
 
@@ -234,7 +256,7 @@ tests/              offline tests, plus test_prompt_regression.py (marked live)
 - **Everyday wording is barely covered:** 8 questions, and they show the largest weakness found. A bigger plain-language set, in the gate, comes next.
 - **Graders check the key fact, not the whole answer.** An answer with the right deadline and a wrong extra claim still passes. In the other direction, declining in other words counts as a failure, on purpose.
 - **SmolLM3 ignores the length rule.** It often pastes whole paragraphs. Length isn't graded.
-- **No Claude results yet.** The `claude-haiku` provider builds a valid request (Haiku 5.5, low effort, no sampling parameters, which that model rejects), checked offline, but it hasn't been run against the API. Its runs won't repeat exactly, because Haiku 5.5 takes no temperature or seed, so its gate margins should be set from a few repeated runs.
+- **Claude's numbers rest on few runs.** Its runs don't repeat word for word, and its gate margins have been checked against only one repeat of the main set. One run each was made on the held-out and plain sets.
 - **The LoRA experiment is one run**, with one seed and one data mix, on synthetic questions written by a 3B model. It shows what this recipe does, not what fine-tuning can do in general. The adapter isn't committed; the notebook recreates it in about 7 minutes.
 - **The corpus is the acts as first published**, without amendments. It's test material, not current law.
 - **The index lives in memory** and is rebuilt in about 30 s per process. That's fine at 607 chunks. A larger corpus would use Qdrant on disk or as a server.
