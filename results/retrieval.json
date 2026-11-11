@@ -1,0 +1,289 @@
+{
+  "settings": {
+    "embedding_model": "BAAI/bge-small-en-v1.5",
+    "sparse_model": "Qdrant/bm25",
+    "mode": "hybrid",
+    "chunk_size": 1000,
+    "chunk_overlap": 150,
+    "chunk_header": true,
+    "k": 5
+  },
+  "configs": [
+    {
+      "set": "main",
+      "mode": "dense",
+      "chunk_header": true,
+      "hit@1": 0.8787878787878788,
+      "hit@3": 0.9696969696969697,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "mrr@10": 0.9318181818181818,
+      "missed_at_5": []
+    },
+    {
+      "set": "main",
+      "mode": "sparse",
+      "chunk_header": true,
+      "hit@1": 0.9090909090909091,
+      "hit@3": 0.9696969696969697,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "mrr@10": 0.9404040404040405,
+      "missed_at_5": []
+    },
+    {
+      "set": "main",
+      "mode": "hybrid",
+      "chunk_header": true,
+      "hit@1": 0.9696969696969697,
+      "hit@3": 1.0,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "mrr@10": 0.9848484848484849,
+      "missed_at_5": []
+    },
+    {
+      "set": "holdout",
+      "mode": "dense",
+      "chunk_header": true,
+      "hit@1": 0.9090909090909091,
+      "hit@3": 1.0,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "mrr@10": 0.9545454545454546,
+      "missed_at_5": []
+    },
+    {
+      "set": "holdout",
+      "mode": "sparse",
+      "chunk_header": true,
+      "hit@1": 0.9090909090909091,
+      "hit@3": 1.0,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "mrr@10": 0.9545454545454546,
+      "missed_at_5": []
+    },
+    {
+      "set": "holdout",
+      "mode": "hybrid",
+      "chunk_header": true,
+      "hit@1": 1.0,
+      "hit@3": 1.0,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "mrr@10": 1.0,
+      "missed_at_5": []
+    },
+    {
+      "set": "plain",
+      "mode": "dense",
+      "chunk_header": true,
+      "hit@1": 0.625,
+      "hit@3": 0.75,
+      "hit@5": 0.875,
+      "hit@10": 1.0,
+      "mrr@10": 0.7395833333333334,
+      "missed_at_5": [
+        "p-refund-card-fraud"
+      ]
+    },
+    {
+      "set": "plain",
+      "mode": "sparse",
+      "chunk_header": true,
+      "hit@1": 0.125,
+      "hit@3": 0.25,
+      "hit@5": 0.25,
+      "hit@10": 0.375,
+      "mrr@10": 0.18229166666666666,
+      "missed_at_5": [
+        "p-refund-card-fraud",
+        "p-stolen-card-400",
+        "p-bank-bust",
+        "p-lost-laptop",
+        "p-old-statement",
+        "p-two-factor-login"
+      ]
+    },
+    {
+      "set": "plain",
+      "mode": "hybrid",
+      "chunk_header": true,
+      "hit@1": 0.375,
+      "hit@3": 0.625,
+      "hit@5": 0.75,
+      "hit@10": 1.0,
+      "mrr@10": 0.5421626984126984,
+      "missed_at_5": [
+        "p-refund-card-fraud",
+        "p-bank-bust"
+      ]
+    },
+    {
+      "set": "main",
+      "mode": "dense",
+      "chunk_header": false,
+      "hit@1": 0.9393939393939394,
+      "hit@3": 0.9696969696969697,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "mrr@10": 0.9621212121212122,
+      "missed_at_5": []
+    },
+    {
+      "set": "main",
+      "mode": "sparse",
+      "chunk_header": false,
+      "hit@1": 0.8787878787878788,
+      "hit@3": 0.9393939393939394,
+      "hit@5": 0.9696969696969697,
+      "hit@10": 1.0,
+      "mrr@10": 0.920995670995671,
+      "missed_at_5": [
+        "dgsd-coverage-level"
+      ]
+    },
+    {
+      "set": "main",
+      "mode": "hybrid",
+      "chunk_header": false,
+      "hit@1": 0.9696969696969697,
+      "hit@3": 1.0,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "mrr@10": 0.9797979797979799,
+      "missed_at_5": []
+    },
+    {
+      "set": "holdout",
+      "mode": "dense",
+      "chunk_header": false,
+      "hit@1": 0.8181818181818182,
+      "hit@3": 1.0,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "mrr@10": 0.9090909090909091,
+      "missed_at_5": []
+    },
+    {
+      "set": "holdout",
+      "mode": "sparse",
+      "chunk_header": false,
+      "hit@1": 0.9090909090909091,
+      "hit@3": 1.0,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "mrr@10": 0.9545454545454546,
+      "missed_at_5": []
+    },
+    {
+      "set": "holdout",
+      "mode": "hybrid",
+      "chunk_header": false,
+      "hit@1": 0.8181818181818182,
+      "hit@3": 1.0,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "mrr@10": 0.9090909090909091,
+      "missed_at_5": []
+    },
+    {
+      "set": "plain",
+      "mode": "dense",
+      "chunk_header": false,
+      "hit@1": 0.75,
+      "hit@3": 0.875,
+      "hit@5": 1.0,
+      "hit@10": 1.0,
+      "mrr@10": 0.8375,
+      "missed_at_5": []
+    },
+    {
+      "set": "plain",
+      "mode": "sparse",
+      "chunk_header": false,
+      "hit@1": 0.125,
+      "hit@3": 0.25,
+      "hit@5": 0.25,
+      "hit@10": 0.25,
+      "mrr@10": 0.16666666666666666,
+      "missed_at_5": [
+        "p-refund-card-fraud",
+        "p-stolen-card-400",
+        "p-bank-bust",
+        "p-lost-laptop",
+        "p-old-statement",
+        "p-two-factor-login"
+      ]
+    },
+    {
+      "set": "plain",
+      "mode": "hybrid",
+      "chunk_header": false,
+      "hit@1": 0.5,
+      "hit@3": 0.875,
+      "hit@5": 0.875,
+      "hit@10": 1.0,
+      "mrr@10": 0.6636904761904762,
+      "missed_at_5": [
+        "p-refund-card-fraud"
+      ]
+    }
+  ],
+  "n_chunks": 607,
+  "index_build_seconds": 29.7,
+  "top1_dense_scores": {
+    "answerable": [
+      0.8779,
+      0.8703,
+      0.8575,
+      0.8279,
+      0.8487,
+      0.8381,
+      0.7595,
+      0.7901,
+      0.8676,
+      0.825,
+      0.7574,
+      0.8029,
+      0.8365,
+      0.8588,
+      0.8858,
+      0.8281,
+      0.8322,
+      0.8437,
+      0.8506,
+      0.8148,
+      0.7445,
+      0.7853,
+      0.7652,
+      0.8466,
+      0.827,
+      0.8025,
+      0.7968,
+      0.8631,
+      0.8628,
+      0.8373,
+      0.8295,
+      0.7694,
+      0.8354
+    ],
+    "unanswerable": [
+      0.7084,
+      0.6457,
+      0.7286,
+      0.7212,
+      0.7158,
+      0.6518,
+      0.6612,
+      0.7291,
+      0.7503,
+      0.6879,
+      0.7049,
+      0.7471,
+      0.7065,
+      0.7156
+    ]
+  }
+}

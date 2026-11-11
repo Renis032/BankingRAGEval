@@ -1,0 +1,14 @@
+{
+  "local": {
+    "prompt": "grounded-v2",
+    "model": "SmolLM3-3B-Q4_K_M",
+    "run": "results/runs/2026-11-11T155848_local_grounded-v2.json",
+    "metrics": {
+      "answer_accuracy": 0.9393939393939394,
+      "citation_accuracy": 0.8484848484848485,
+      "refusal_rate": 1.0,
+      "false_refusal_rate": 0.06060606060606061,
+      "retrieval_hit_rate": 1.0
+    }
+  }
+}

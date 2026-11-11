@@ -1,0 +1,58 @@
+[project]
+name = "banking-rag-eval"
+version = "0.1.0"
+description = "A LangChain RAG pipeline over EU banking regulation, with Qdrant and a code-graded prompt regression suite"
+requires-python = ">=3.12"
+dependencies = [
+    "langchain-core",
+    "langchain-text-splitters",
+    "langchain-qdrant",
+    "langchain-openai",
+    "langchain-anthropic",
+    "qdrant-client",
+    "fastembed",
+    "beautifulsoup4",
+    "lxml",
+    "httpx",
+    "pyyaml",
+    "python-dotenv",
+]
+
+[tool.uv]
+package = false
+# Machine-specific uv settings (cache location, link mode) go in an untracked uv.toml.
+# The fine-tuning experiment's packages (PyTorch with CUDA, about 3 GB) are opt-in:
+# uv sync --group finetune
+default-groups = ["dev"]
+
+[dependency-groups]
+dev = [
+    "pytest",
+]
+finetune = [
+    "torch",
+    "transformers",
+    "peft",
+    "accelerate",
+    "ipykernel",
+    "nbconvert",
+]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-m 'not live'"
+markers = [
+    "live: calls a real model (local llama.cpp or the Claude API); run with -m live",
+]
+filterwarnings = [
+    "ignore::bs4.XMLParsedAsHTMLWarning",
+]

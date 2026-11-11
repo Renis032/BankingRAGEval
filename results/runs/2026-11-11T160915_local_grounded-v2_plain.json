@@ -1,0 +1,51 @@
+{
+  "started": "2026-11-11T160915",
+  "provider": "local",
+  "model": "SmolLM3-3B-Q4_K_M",
+  "model_label": "SmolLM3 3B (Q4_K_M), llama.cpp, RTX 3060 Ti",
+  "prompt": "grounded-v2",
+  "question_set": "plain",
+  "retrieval": {
+    "embedding_model": "BAAI/bge-small-en-v1.5",
+    "sparse_model": "Qdrant/bm25",
+    "mode": "hybrid",
+    "chunk_size": 1000,
+    "chunk_overlap": 150,
+    "chunk_header": true,
+    "k": 5
+  },
+  "summary": {
+    "n_questions": 8,
+    "n_answerable": 8,
+    "n_unanswerable": 0,
+    "retrieval_hit_rate": 0.75,
+    "answer_accuracy": 0.25,
+    "citation_accuracy": 0.25,
+    "refusal_rate": 0.0,
+    "false_refusal_rate": 0.75,
+    "answer_accuracy_ci95": [
+      0.07147768885802763,
+      0.5907301208974108
+    ],
+    "refusal_rate_ci95": [
+      0.0,
+      0.0
+    ],
+    "grounded_accuracy": 0.25,
+    "accuracy_when_retrieved": 0.3333333333333333,
+    "by_kind": {
+      "fact": {
+        "n": 8,
+        "correct": 2
+      }
+    },
+    "latency_ms_p50": 279.75,
+    "latency_ms_p95": 1316.0649999999998,
+    "retrieval_ms_mean": 18.725,
+    "generation_ms_mean": 503.0375,
+    "tokens_in_mean": 1134.75,
+    "tokens_out_mean": 45.375,
+    "cost_usd_total": 0.0,
+    "cost_usd_per_query": 0.0
+  }
+}

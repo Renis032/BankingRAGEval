@@ -1,0 +1,133 @@
+# Held-out questions, written after grounded-v2 was frozen and never used to change a prompt.
+# grounded-v2 was revised while looking at the main set's answers, so its score there is
+# optimistic; this set is the check on that. Same format as questions.yaml.
+
+- id: h-psd2-lost-instrument
+  kind: fact
+  answerable: true
+  question: What must a payment service user do on becoming aware that their payment instrument has been lost or stolen?
+  gold: [PSD2-69]
+  expect: ['without undue delay', 'notify|inform|tell']
+  pass: Notify the payment service provider, or the entity it specified, without undue delay [1].
+  fail: Wait for the next account statement and dispute any unknown transactions [1].
+
+- id: h-psd2-non-business-day
+  kind: fact
+  answerable: true
+  question: If the agreed day for executing a payment order is not a business day for the provider, when is the order deemed to have been received?
+  gold: [PSD2-78]
+  expect: ['(following|next) business day']
+  pass: It is deemed to have been received on the following business day [2].
+  fail: It is deemed to have been received on the agreed day regardless [2].
+
+- id: h-psd2-value-date
+  kind: fact
+  answerable: true
+  question: What is the latest credit value date for the payee's payment account?
+  gold: [PSD2-87]
+  expect: ['business day on which|same (business )?day']
+  pass: No later than the business day on which the amount is credited to the payee's provider's account [1].
+  fail: Two business days after the payer's account is debited [1].
+
+- id: h-psd2-low-value
+  kind: fact
+  answerable: true
+  question: Which limits define a low value payment instrument under the PSD2 derogation?
+  gold: [PSD2-63]
+  expect: ['\b30\b', '\b150\b']
+  pass: Individual transactions not exceeding EUR 30, or a spending limit or stored funds of no more than EUR 150 [1].
+  fail: Individual transactions not exceeding EUR 50 [1].
+
+- id: h-psd2-wrong-iban
+  kind: fact
+  answerable: true
+  question: Is a payment service provider liable when a payment fails because the unique identifier the customer provided was incorrect?
+  gold: [PSD2-88]
+  expect: ['not (be )?liable|no liability|is not responsible']
+  reject: ['^yes\b']
+  pass: No. If the unique identifier provided by the user is incorrect, the provider is not liable for non-execution or defective execution [1].
+  fail: Yes, the provider must refund the full amount [1].
+
+- id: h-psd2-small-institution
+  kind: fact
+  answerable: true
+  question: Up to what monthly average volume of payment transactions may a Member State exempt a payment institution from the authorisation conditions?
+  gold: [PSD2-32]
+  expect: ['3 million|3000000']
+  pass: The average of the preceding 12 months' total payment transactions must not exceed EUR 3 million per month [1].
+  fail: Up to EUR 10 million per month [1].
+
+- id: h-dgsd-currency-adjustment
+  kind: fact
+  answerable: true
+  question: How often must Member States adjust coverage levels converted into another currency?
+  gold: [DGSD-6]
+  expect: ['(five|5) years']
+  pass: Every five years [1].
+  fail: Every year [1].
+
+- id: h-gdpr-copy-fee
+  kind: fact
+  answerable: true
+  question: Can a controller charge the data subject for further copies of their personal data?
+  gold: [GDPR-15]
+  expect: ['reasonable fee']
+  pass: For further copies the controller may charge a reasonable fee based on administrative costs [1].
+  fail: No, all copies must always be free of charge [1].
+
+- id: h-gdpr-withdraw-consent
+  kind: fact
+  answerable: true
+  question: When may a data subject withdraw their consent?
+  gold: [GDPR-7]
+  expect: ['at any time']
+  pass: The data subject has the right to withdraw consent at any time [1].
+  fail: Only within 14 days of giving it [1].
+
+- id: h-gdpr-records-exemption
+  kind: fact
+  answerable: true
+  question: Below what number of employees is an organisation exempt from keeping records of processing activities, unless its processing is risky?
+  gold: [GDPR-30]
+  expect: ['\b250\b']
+  pass: Organisations employing fewer than 250 persons, unless the processing is likely to result in a risk [2].
+  fail: Fewer than 50 employees [2].
+
+- id: h-premise-pis-capital
+  kind: false_premise
+  answerable: true
+  question: A payment institution that only provides payment initiation services needs EUR 125 000 of initial capital, right?
+  gold: [PSD2-7]
+  expect: ['\b50000\b']
+  pass: No, for payment initiation services the capital must be at least EUR 50 000 [1].
+  fail: Yes, EUR 125 000 is required [1].
+
+- id: h-out-lcr
+  kind: out_of_corpus
+  answerable: false
+  question: What minimum liquidity coverage ratio must banks maintain?
+  absent: ['liquidity coverage']
+
+- id: h-out-stamp-duty
+  kind: out_of_corpus
+  answerable: false
+  question: How much property transfer tax is charged on a house purchase in Germany?
+  absent: ['property transfer', 'stamp duty']
+
+- id: h-out-ltv
+  kind: out_of_corpus
+  answerable: false
+  question: What is the maximum loan-to-value ratio for residential mortgages?
+  absent: ['loan-to-value']
+
+- id: h-out-dora
+  kind: out_of_corpus
+  answerable: false
+  question: Under DORA, within how many hours must a major ICT-related incident be reported?
+  absent: ['ict-related', '\bdora\b']
+
+- id: h-out-euribor
+  kind: out_of_corpus
+  answerable: false
+  question: What is the current 3-month Euribor rate?
+  absent: ['euribor']

@@ -1,0 +1,15 @@
+# The prompt regression gate. A run fails when a metric is worse than the accepted baseline
+# for the same provider (evals/baselines.json) by more than its margin, in absolute points.
+#
+# The eval set has 33 answerable and 14 unanswerable questions, so one question is worth
+# 0.030 of an answerable metric and 0.071 of refusal_rate. These margins let one question
+# change for the worse and fail the run on two.
+metrics:
+  answer_accuracy:    {higher_is_better: true,  margin: 0.031}
+  citation_accuracy:  {higher_is_better: true,  margin: 0.031}
+  refusal_rate:       {higher_is_better: true,  margin: 0.072}
+  false_refusal_rate: {higher_is_better: false, margin: 0.031}
+  retrieval_hit_rate: {higher_is_better: true,  margin: 0.0}  # no model involved: exactly repeatable
+
+# Per-provider overrides, e.g.  claude-haiku: {answer_accuracy: {margin: 0.061}}
+providers: {}

@@ -1,0 +1,76 @@
+# Plain-language questions: how a customer or a member of staff might ask, without the
+# directive's own words. Written after the first results showed that questions in the main set
+# share wording with the articles they come from, which flatters retrieval. Not used to tune
+# any prompt or retrieval setting. Same format as questions.yaml.
+
+- id: p-refund-card-fraud
+  kind: fact
+  answerable: true
+  question: How quickly does my bank have to refund a card payment I did not authorise?
+  gold: [PSD2-73]
+  expect: ['(following|next) business day']
+  pass: Immediately, and at the latest by the end of the following business day [1].
+  fail: Within eight weeks [1].
+
+- id: p-stolen-card-400
+  kind: fact
+  answerable: true
+  question: Someone stole my card and spent 400 euros. How much of that do I have to pay?
+  gold: [PSD2-74]
+  expect: ['\b50\b']
+  pass: At most EUR 50, unless you acted fraudulently or with gross negligence [1].
+  fail: You have to pay the full EUR 400 [1].
+
+- id: p-bank-bust
+  kind: fact
+  answerable: true
+  question: My bank went bust. How much of my savings do I get back?
+  gold: [DGSD-6]
+  expect: ['\b100000\b']
+  pass: Deposits are covered up to EUR 100 000 per depositor [2].
+  fail: Everything is always repaid in full [2].
+
+- id: p-lost-laptop
+  kind: fact
+  answerable: true
+  question: We lost a laptop with customer data on it. How long do we have to tell the regulator?
+  gold: [GDPR-33]
+  expect: ['\b72 hours\b']
+  pass: Without undue delay and, where feasible, within 72 hours of becoming aware of it [1].
+  fail: Within 30 days [1].
+
+- id: p-fee-change-warning
+  kind: fact
+  answerable: true
+  question: Can my bank change my account fees without warning me?
+  gold: [PSD2-54]
+  expect: ['\b(2|two) months\b']
+  pass: No, changes must be proposed no later than 2 months before they apply [1].
+  fail: Yes, the bank can change fees at any time [1].
+
+- id: p-old-statement
+  kind: fact
+  answerable: true
+  question: I just noticed a payment I never made on a statement from last year. Is it too late to get it corrected?
+  gold: [PSD2-71]
+  expect: ['\b(13|thirteen) months\b']
+  pass: Not if you notify your bank within 13 months of the debit date [1].
+  fail: Yes, you only have 8 weeks [1].
+
+- id: p-complaint-wait
+  kind: fact
+  answerable: true
+  question: How long can my bank take to answer my complaint?
+  gold: [PSD2-101]
+  expect: ['\b(15|fifteen) business days\b']
+  pass: At the latest 15 business days after receiving it, or up to 35 business days in exceptional cases [1].
+  fail: Up to three months [1].
+
+- id: p-two-factor-login
+  kind: fact
+  answerable: true
+  question: Does my bank have to use two-factor authentication when I log in to online banking?
+  gold: [PSD2-97]
+  expect: ['strong customer authentication', 'online']
+  pass: Yes, strong customer authentication applies when the payer accesses its payment account online [1].
+  fail: No, only for payments above EUR 30 [1].

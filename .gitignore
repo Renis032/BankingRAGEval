@@ -1,0 +1,15 @@
+# Python and tools
+.venv/
+__pycache__/
+.pytest_cache/
+
+# This machine's own settings: .env holds local paths and any API key, uv.toml keeps uv's
+# cache on D:, and .claude/ holds the Claude Code app's settings
+.env
+uv.toml
+.claude/
+
+# Downloads and caches: the raw EU acts, embedding models, the pinned chat template, logs.
+# data/corpus.jsonl (the parsed articles) is committed; `python -m bankrag build-corpus` remakes it.
+.cache/
+*.gguf
